@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Connexion - ResaSpace</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .message {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .message.error {
+      background-color: #ffebee;
+      color: #c62828;
+      border: 1px solid #ef9a9a;
+    }
+
+    .forgot-link {
+      display: block;
+      margin-top: 10px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body class="login-page">
+  <div class="container">
+    <h2>Se connecter</h2>
+    <form id="loginForm" autocomplete="off">
+      <input type="email" 
+             name="email" 
+             id="email" 
+             placeholder="Email" 
+             required 
+             autocomplete="off" 
+             value="" /><br />
+      
+      <input type="password" 
+             name="password" 
+             id="password"
+             placeholder="Mot de passe" 
+             required 
+             autocomplete="new-password" 
+             value="" /><br />
+      
+      <button type="submit" class="btn">Se connecter</button>
+    </form>
+
+    <br />
+    <a href="/index.html" class="btn">Retour à l'accueil</a>
+    <div id="message"></div>
+  </div>
+
+  <script>
+    // Vider les champs au chargement de la page
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const messageDiv = document.getElementById('message');
+
+  try {
+    const response = await fetch('/api/users/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json(); // Ajoutez cette ligne pour lire la réponse JSON
+
+    if (response.ok) {
+      window.location.href = '/dashboard.html';
+    } else {
+      // Affiche le message d'erreur spécifique venant du serveur
+      messageDiv.innerHTML = `<div class="message error">${data.erreur || "Erreur de connexion"}</div>`;
+      
+      setTimeout(() => {
+        messageDiv.innerHTML = '';
+      }, 5000); // Garde le message affiché pendant 5 secondes
+    }
+
+  } catch (err) {
+    messageDiv.innerHTML = `<div class="message error">Erreur serveur. Veuillez réessayer.</div>`;
+    
+    setTimeout(() => {
+      messageDiv.innerHTML = '';
+    }, 5000);
+  }
+});
+  </script>
+</body>
+</html>

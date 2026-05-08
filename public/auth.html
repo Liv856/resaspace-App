@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion / Inscription</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .hidden { display: none; }
+    .btn-switch { margin: 10px; cursor: pointer; color: blue; text-decoration: underline; }
+  </style>
+</head>
+<body class="auth-page">
+  <div class="container">
+    <h2 id="form-title">Se connecter</h2>
+
+    <!-- Formulaire de connexion -->
+    <form id="login-form" action="/login" method="post" autocomplete="off">
+        <input type="email" name="email" placeholder="Email" required autocomplete="off"><br>
+        <input type="password" name="password" placeholder="Mot de passe" required autocomplete="off"><br>
+        <button type="submit" class="btn">Se connecter</button>
+    </form>
+
+    <!-- Formulaire d'inscription (caché au début) -->
+    <form id="register-form" class="hidden" action="/register" method="post" autocomplete="off">
+        <input type="text" name="prenom" placeholder="Prénom" required autocomplete="off"><br>
+        <input type="text" name="nom" placeholder="Nom" required autocomplete="off"><br>
+        <input type="email" name="email" placeholder="Email" required autocomplete="off"><br>
+        <input type="password" name="password" placeholder="Mot de passe" required autocomplete="off"><br>
+        <button type="submit" class="btn">S'inscrire</button>
+    </form>
+
+    <div>
+      <span id="switch-to-register" class="btn-switch">Créer un compte</span>
+      <span id="switch-to-login" class="btn-switch hidden">Se connecter</span>
+    </div>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const switchToRegister = document.getElementById('switch-to-register');
+    const switchToLogin = document.getElementById('switch-to-login');
+    const formTitle = document.getElementById('form-title');
+
+    switchToRegister.addEventListener('click', () => {
+      loginForm.classList.add('hidden');
+      registerForm.classList.remove('hidden');
+      switchToRegister.classList.add('hidden');
+      switchToLogin.classList.remove('hidden');
+      formTitle.textContent = "Créer un compte";
+    });
+
+    switchToLogin.addEventListener('click', () => {
+      loginForm.classList.remove('hidden');
+      registerForm.classList.add('hidden');
+      switchToRegister.classList.remove('hidden');
+      switchToLogin.classList.add('hidden');
+      formTitle.textContent = "Se connecter";
+    });
+  </script>
+</body>
+</html>

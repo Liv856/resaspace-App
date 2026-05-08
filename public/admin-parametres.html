@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Paramètres - Admin</title>
+  <link rel="stylesheet" href="/admin.css">
+  <style>
+    .settings-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      padding: 20px;
+    }
+    .settings-section {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button[type="submit"] {
+      background: #2ecc71;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .description {
+      font-size: 0.9em;
+      color: #666;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/admin/dashboard" class="back-link">← Retour</a>
+    <h1>⚙️ Paramètres du système</h1>
+    
+    <form id="parametres-form">
+      <div class="settings-container">
+        <!-- Section Réservations -->
+        <div class="settings-section">
+          <h2>📅 Paramètres de réservation</h2>
+          
+          <div class="form-group">
+  <label for="duree_max">Durée maximale (jours):</label>
+  <input type="number" id="duree_max" name="duree_max" min="1" max="30" required>
+  <p class="description">Durée maximale d'une réservation en jours</p>
+</div>
+          
+          <div class="form-group">
+            <label for="creneaux_min">Créneau minimum (minutes):</label>
+            <input type="number" id="creneaux_min" name="creneaux_min" min="15" max="120" step="15" required>
+            <p class="description">Durée minimale entre deux réservations</p>
+          </div>
+        </div>
+        
+        <!-- Section Horaires -->
+        <div class="settings-section">
+          <h2>🕒 Horaires d'ouverture</h2>
+          
+          <div class="form-group">
+            <label for="heure_ouverture">Heure d'ouverture:</label>
+            <input type="time" id="heure_ouverture" name="heure_ouverture" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="heure_fermeture">Heure de fermeture:</label>
+            <input type="time" id="heure_fermeture" name="heure_fermeture" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="jours_ouverture">Jours d'ouverture:</label>
+            <select id="jours_ouverture" name="jours_ouverture" multiple>
+              <option value="1">Lundi</option>
+              <option value="2">Mardi</option>
+              <option value="3">Mercredi</option>
+              <option value="4">Jeudi</option>
+              <option value="5">Vendredi</option>
+              <option value="6">Samedi</option>
+              <option value="0">Dimanche</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Section Notifications -->
+        <div class="settings-section">
+          <h2>🔔 Notifications</h2>
+          
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="notifications_actives" name="notifications_actives" value="1">
+              Activer les notifications
+            </label>
+          </div>
+          
+          <div class="form-group">
+            <label for="email_admin">Email pour notifications:</label>
+            <input type="email" id="email_admin" name="email_admin">
+          </div>
+        </div>
+        
+        <!-- Section Avancés -->
+        <div class="settings-section">
+          <h2>🛠️ Paramètres avancés</h2>
+          
+          <div class="form-group">
+            <label for="delai_annulation">Délai d'annulation (heures):</label>
+            <input type="number" id="delai_annulation" name="delai_annulation" min="1" max="48">
+            <p class="description">Délai minimum pour annuler une réservation</p>
+          </div>
+          
+          <div class="form-group">
+            <label for="max_reservations">Max réservations/utilisateur:</label>
+            <input type="number" id="max_reservations" name="max_reservations" min="1">
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group" style="margin-top: 20px;">
+        <button type="submit">Enregistrer les paramètres</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Chargement des paramètres existants
+    async function loadSettings() {
+      try {
+        const response = await fetch('/admin/parametres');
+        const params = await response.json();
+        
+        // Remplissage du formulaire
+        document.getElementById('duree_max').value = params.duree_max || 4;
+        document.getElementById('creneaux_min').value = params.creneaux_min || 30;
+        document.getElementById('heure_ouverture').value = params.heure_ouverture || '08:00';
+        document.getElementById('heure_fermeture').value = params.heure_fermeture || '20:00';
+        document.getElementById('notifications_actives').checked = params.notifications_actives === '1';
+        document.getElementById('email_admin').value = params.email_admin || '';
+        document.getElementById('delai_annulation').value = params.delai_annulation || 24;
+        document.getElementById('max_reservations').value = params.max_reservations || 5;
+        
+        // Sélection des jours ouverts
+        if (params.jours_ouverture) {
+          const jours = params.jours_ouverture.split(',');
+          const select = document.getElementById('jours_ouverture');
+          Array.from(select.options).forEach(option => {
+            option.selected = jours.includes(option.value);
+          });
+        }
+        
+      } catch (error) {
+        console.error("Erreur chargement paramètres:", error);
+      }
+    }
+
+    // Envoi du formulaire
+    document.getElementById('parametres-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(e.target);
+      const params = Object.fromEntries(formData.entries());
+      params.jours_ouverture = Array.from(document.getElementById('jours_ouverture').selectedOptions)
+        .map(opt => opt.value).join(',');
+      
+      try {
+        const response = await fetch('/admin/parametres', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(params)
+        });
+        
+        if (response.ok) {
+          alert('Paramètres sauvegardés avec succès!');
+        } else {
+          throw new Error('Erreur serveur');
+        }
+      } catch (error) {
+        console.error("Erreur sauvegarde:", error);
+        alert('Erreur lors de la sauvegarde');
+      }
+    });
+
+    // Chargement initial
+    document.addEventListener('DOMContentLoaded', loadSettings);
+  </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Notification manuelle</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-page">
+  <div class="container">
+    <h2>Envoyer une notification</h2>
+    <form id="formNotif">
+      <label for="id_utilisateur">Choisir un utilisateur :</label><br>
+      <select name="id_utilisateur" id="id_utilisateur" required>
+        <option disabled selected>Chargement...</option>
+      </select><br><br>
+
+      <label>Titre :</label>
+      <input type="text" name="titre" required><br><br>
+
+      <label>Message :</label>
+      <textarea name="message" required></textarea><br><br>
+
+      <button type="submit">Envoyer</button>
+    </form>
+    <br>
+    <a href="/admin/dashboard">⬅ Retour au tableau de bord</a>
+    <div id="message"></div>
+  </div>
+
+  <script>
+    // Charger les utilisateurs
+    window.onload = () => {
+      fetch('/admin/utilisateurs')
+        .then(res => {
+          if (!res.ok) throw new Error('Erreur de chargement');
+          return res.json();
+        })
+        .then(data => {
+          const select = document.getElementById('id_utilisateur');
+          select.innerHTML = '<option disabled selected>Sélectionnez un utilisateur</option>';
+          data.forEach(user => {
+            const option = document.createElement('option');
+            option.value = user.id;
+            option.textContent = `${user.prenom} ${user.nom}`;
+            select.appendChild(option);
+          });
+        })
+        .catch(err => {
+          console.error(err);
+          const select = document.getElementById('id_utilisateur');
+          select.innerHTML = '<option disabled>Erreur de chargement</option>';
+        });
+
+      // Gestion de l'envoi du formulaire
+      document.getElementById('formNotif').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = {
+          id_utilisateur: e.target.id_utilisateur.value,
+          titre: e.target.titre.value,
+          message: e.target.message.value
+        };
+
+        try {
+          const response = await fetch('/admin/notifications', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+            credentials: 'include' // Important pour les cookies de session
+          });
+
+          const result = await response.json();
+          
+          if (response.ok) {
+            document.getElementById('message').textContent = 'Notification envoyée avec succès!';
+            document.getElementById('message').style.color = 'green';
+            e.target.reset();
+          } else {
+            throw new Error(result.erreur || 'Erreur lors de l\'envoi');
+          }
+        } catch (error) {
+          console.error('Erreur:', error);
+          document.getElementById('message').textContent = error.message;
+          document.getElementById('message').style.color = 'red';
+        }
+      });
+    };
+  </script>
+</body>
+</html>

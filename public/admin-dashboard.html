@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin</title>
+  <link rel="stylesheet" href="/admin.css">
+  <style>
+    /* Styles supplémentaires pour améliorer l'apparence */
+    .form-container {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .form-container h3 {
+      margin-top: 0;
+      color: #343a40;
+    }
+    
+    #add-resource-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    
+    #add-resource-form input,
+    #add-resource-form textarea {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    
+    #add-resource-form textarea {
+      grid-column: span 2;
+      min-height: 80px;
+      resize: vertical;
+    }
+    
+    #add-resource-form button {
+      grid-column: span 2;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    
+    #add-resource-form button:hover {
+      background-color: #45a049;
+    }
+    
+    .resources-list {
+      overflow-x: auto;
+    }
+    
+    #resources-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    
+    #resources-table th, 
+    #resources-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    #resources-table th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+    }
+    
+    #resources-table tr:hover {
+      background-color: #f5f5f5;
+    }
+    
+    #resources-table button {
+      padding: 6px 12px;
+      margin-right: 5px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    #resources-table button:first-of-type {
+      background-color: #2196F3;
+      color: white;
+    }
+    
+    #resources-table button:last-of-type {
+      background-color: #f44336;
+      color: white;
+    }
+    
+    .btn-retour-container {
+      margin-top: 20px;
+      text-align: center;
+    }
+    
+    .btn-retour {
+      padding: 10px 20px;
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    
+    .btn-retour:hover {
+      background-color: #5a6268;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Admin</h2>
+    <ul>
+  <li><a href="#" onclick="afficherUtilisateurs()">Utilisateurs</a></li>
+  <li><a href="#" onclick="afficherRessources()">Ressources</a></li>
+  <li><a href="/admin-reservations.html">Gestion des réservations</a></li>
+  <li><a href="#" onclick="afficherStatistiques()">Statistiques</a></li>
+  <li><a href="#" onclick="afficherParametres()">Paramètres</a></li>
+  <li><a href="/admin-notification.html">Envoyer une notification</a></li>
+  <li><a href="#" onclick="deconnecterAdmin()" style="color: #f44336;">Déconnexion</a></li>
+</ul>
+  </div>
+
+  <div class="main-content">
+    <div id="tableau-de-bord">
+      <h1>Bienvenue dans le tableau de bord administrateur</h1>
+      <p>Sélectionnez une option dans le menu.</p>
+    </div>
+
+    <!-- SECTION UTILISATEURS -->
+    <div id="utilisateurs-section" style="display: none;">
+      <h2>Liste des utilisateurs</h2>
+      <div class="users-card">
+        <table id="table-users">
+          <thead>
+            <tr>
+              <th>Nom</th><th>Prénom</th><th>Email</th><th>Date</th><th>Bloqué</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="btn-retour-container">
+        <button class="btn-retour" onclick="retourDashboard()">Retour au menu</button>
+      </div>
+    </div>
+
+    <!-- SECTION RESSOURCES -->
+    <div id="ressources-section" style="display: none;">
+      <h2>Gestion des ressources</h2>
+      
+      <!-- Formulaire d'ajout -->
+      <div class="form-container">
+        <h3>Ajouter une ressource</h3>
+        <form id="add-resource-form">
+          <input type="text" name="nom" placeholder="Nom" required>
+          <input type="text" name="type" placeholder="Type" required>
+          <textarea name="description" placeholder="Description"></textarea>
+          <button type="submit">Ajouter</button>
+        </form>
+      </div>
+      
+      <!-- Liste des ressources -->
+      <div class="resources-list">
+        <h3>Liste des ressources</h3>
+        <table id="resources-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nom</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      
+      <div class="btn-retour-container">
+        <button class="btn-retour" onclick="retourDashboard()">Retour au menu</button>
+      </div>
+    </div>
+    <!-- Dans le dashboard admin -->
+     <!-- SECTION STATISTIQUES -->
+<div id="statistiques-section" style="display: none;">
+  <h2>Statistiques</h2>
+  <div class="stats-container">
+    <!-- Contenu chargé dynamiquement -->
+    <iframe src="/admin-statistiques.html" style="width:100%; height:80vh; border:none;"></iframe>
+  </div>
+  <div class="btn-retour-container">
+    <button class="btn-retour" onclick="retourDashboard()">Retour au menu</button>
+  </div>
+</div>
+
+<!-- SECTION PARAMÈTRES -->
+<div id="parametres-section" style="display: none;">
+  <h2>Paramètres</h2>
+  <div class="settings-container">
+    <!-- Contenu chargé dynamiquement -->
+    <iframe src="/admin-parametres.html" style="width:100%; height:80vh; border:none;"></iframe>
+  </div>
+  <div class="btn-retour-container">
+    <button class="btn-retour" onclick="retourDashboard()">Retour au menu</button>
+  </div>
+</div>
+    <script>
+      // Modifiez la fonction afficherUtilisateurs
+function afficherUtilisateurs() {
+  cacherToutesLesSections();
+  document.getElementById('utilisateurs-section').style.display = 'block';
+
+  fetch('/admin/users')
+    .then(res => res.json())
+    .then(data => {
+      const tbody = document.querySelector('#table-users tbody');
+      tbody.innerHTML = '';
+      data.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${user.nom}</td>
+          <td>${user.prenom}</td>
+          <td>${user.email}</td>
+          <td>${new Date(user.date_inscription).toLocaleDateString()}</td>
+          <td>${user.bloque ? 'Oui' : 'Non'}</td>
+          <td>${user.statut === 'supprimé' ? 'Supprimé' : `
+            <button onclick="supprimerUtilisateur(${user.id})">Supprimer</button>
+            <button onclick="bloquerUtilisateur(${user.id}, ${!user.bloque})">
+              ${user.bloque ? 'Débloquer' : 'Bloquer'}
+            </button>
+          `}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    });
+}
+
+      function afficherRessources() {
+        cacherToutesLesSections();
+        document.getElementById('ressources-section').style.display = 'block';
+
+        fetch('/admin/ressources')
+          .then(res => res.json())
+          .then(data => {
+            const tbody = document.querySelector('#resources-table tbody');
+            tbody.innerHTML = '';
+            data.forEach(resource => {
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                <td>${resource.id_ressource}</td>
+                <td>${resource.nom}</td>
+                <td>${resource.type}</td>
+                <td>${resource.description || '-'}</td>
+                <td>
+                  <button onclick="editerRessource(${resource.id_ressource})">Modifier</button>
+                  <button onclick="supprimerRessource(${resource.id_ressource})">Supprimer</button>
+                </td>
+              `;
+              tbody.appendChild(row);
+            });
+          });
+      }
+
+      document.getElementById('add-resource-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const data = Object.fromEntries(formData.entries());
+
+        fetch('/admin/ressources', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        })
+        .then(res => res.json())
+        .then(() => {
+          this.reset();
+          afficherRessources();
+        });
+      });
+
+      function editerRessource(id) {
+  const newName = prompt("Nouveau nom :");
+  const newType = prompt("Nouveau type (ex: salle, projecteur, etc) :");
+  const newDescription = prompt("Nouvelle description :");
+
+  if (newName && newType && newDescription) {
+    fetch(`/admin/ressources/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nom: newName,
+        type: newType,
+        description: newDescription
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      alert("Ressource modifiée avec succès !");
+      afficherRessources(); // recharge la liste
+    })
+    .catch(err => {
+      console.error("Erreur modification :", err);
+      alert("Erreur lors de la modification.");
+    });
+  } else {
+    alert("Tous les champs sont obligatoires.");
+  }
+}
+
+
+      function supprimerRessource(id) {
+        if (confirm("Voulez-vous vraiment supprimer cette ressource ?")) {
+          fetch(`/admin/ressources/${id}`, { method: 'DELETE' })
+            .then(() => afficherRessources());
+        }
+      }
+
+      function retourDashboard() {
+        cacherToutesLesSections();
+        document.getElementById('tableau-de-bord').style.display = 'block';
+      }
+
+      function cacherToutesLesSections() {
+        document.getElementById('tableau-de-bord').style.display = 'none';
+        document.getElementById('utilisateurs-section').style.display = 'none';
+        document.getElementById('ressources-section').style.display = 'none';
+      }
+
+      function supprimerUtilisateur(id) {
+        if (confirm("Voulez-vous vraiment supprimer cet utilisateur ?")) {
+          fetch('/admin/users/' + id, { method: 'DELETE' })
+            .then(() => afficherUtilisateurs());
+        }
+      }
+
+      function bloquerUtilisateur(id, bloque) {
+        fetch('/admin/users/block/' + id, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bloque })
+        }).then(() => afficherUtilisateurs());
+      }
+      function afficherStatistiques() {
+  cacherToutesLesSections();
+  document.getElementById('statistiques-section').style.display = 'block';
+}
+
+function afficherParametres() {
+  cacherToutesLesSections();
+  document.getElementById('parametres-section').style.display = 'block';
+}
+
+// Modifiez la fonction cacherToutesLesSections pour inclure les nouvelles sections
+function cacherToutesLesSections() {
+  document.getElementById('tableau-de-bord').style.display = 'none';
+  document.getElementById('utilisateurs-section').style.display = 'none';
+  document.getElementById('ressources-section').style.display = 'none';
+  document.getElementById('statistiques-section').style.display = 'none';
+  document.getElementById('parametres-section').style.display = 'none';
+}
+function deconnecterAdmin() {
+  fetch('/admin/logout', {
+    method: 'GET'
+  })
+  .then(response => {
+    if (response.ok) {
+      window.location.href = '/admin-login.html';
+    }
+  })
+  .catch(err => {
+    console.error('Erreur lors de la déconnexion:', err);
+  });
+}
+    </script>
+  </div>
+</body>
+</html>

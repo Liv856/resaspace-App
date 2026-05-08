@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Tableau de bord</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+    }
+
+    .container {
+      padding: 30px;
+      max-width: 1000px;
+      margin: auto;
+      background-color: hsl(145, 51%, 41%);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      position: relative;
+      color: white;
+    }
+
+    .menu-toggle {
+      font-size: 26px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      display: inline-block;
+    }
+
+    .sidebar {
+      position: absolute;
+      top: 50px;
+      left: 20px;
+      background-color: #ffffff;
+      padding: 10px 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 100;
+    }
+
+    .sidebar a {
+      margin: 5px 0;
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+
+    h2 {
+      margin-top: 40px;
+      color: white;
+    }
+
+    a.link-blanc {
+      color: white;
+      text-decoration: underline;
+    }
+
+    a.link-blanc:hover {
+      color: #cfeadd;
+    }
+  </style>
+  <style>
+    /* --- Responsive Card pour Notifications --- */
+    .notifications-card {
+      background-color: #f4f4f4;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-top: 30px;
+    }
+    .notifications-card h3 {
+      color: #333;
+      margin-bottom: 15px;
+    }
+    .notifications-card ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    .notifications-card li {
+      background: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      border-left: 5px solid #2196F3;
+    }
+    .voir-tout {
+      display: block;
+      margin-top: 10px;
+      text-align: right;
+      font-weight: bold;
+      color: #2196F3;
+      text-decoration: none;
+    }
+    .voir-tout:hover {
+      text-decoration: underline;
+    }
+
+    /* Menu déroulant */
+    .dropdown-content a {
+      display: block;
+      padding: 8px;
+      text-decoration: none;
+      color: #000;
+    }
+    .notification-badge {
+  position: relative;
+}
+
+.notification-badge::after {
+  content: attr(data-count);
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="menu-toggle" onclick="toggleMenu()">☰ Menu</span>
+    <div class="sidebar" id="sidebar">
+      <a href="/dashboard.html">Tableau de bord</a>
+      <a href="/reserver.html">Réserver une salle / matériel</a>
+      <a href="/ressources.html">Ressources disponibles</a>
+      <a href="/historique.html">Historique</a>
+      <a href="/notifications.html" class="notification-badge" id="notification-link">Notifications</a>
+      <a href="profil.html">👤 Profil</a>
+      <a href="/deconnexion" id="btn-deconnexion">Déconnexion</a>
+    </div>
+
+    <h1 id="bienvenue">Bienvenue !</h1>
+    <p>Ceci est votre tableau de bord personnel.</p>
+
+    <h2>Accès rapide</h2>
+    <p>Consultez votre <a class="link-blanc" href="/historique.html">historique des réservations</a> pour voir vos demandes passées.</p>
+    <p>Voir les <a class="link-blanc" href="/ressources.html">ressources disponibles</a> pour effectuer une réservation.</p>
+  </div>
+
+  <script>
+    function toggleMenu() {
+      const menu = document.getElementById('sidebar');
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    }
+    function checkNewNotifications() {
+  fetch('/api/users/notifications/non-lues/count')
+    .then(res => res.json())
+    .then(data => {
+      const link = document.getElementById('notification-link');
+      if (data.count > 0) {
+        link.setAttribute('data-count', data.count);
+        link.classList.add('notification-badge');
+      } else {
+        link.removeAttribute('data-count');
+        link.classList.remove('notification-badge');
+      }
+    });
+}
+
+// Vérifier toutes les minutes
+setInterval(checkNewNotifications, 60000);
+document.addEventListener('DOMContentLoaded', checkNewNotifications);
+    // Affichage du nom de l'utilisateur
+    fetch('/api/utilisateur')
+      .then(res => res.json())
+      .then(data => {
+        if (data.utilisateur) {
+          document.getElementById('bienvenue').innerText =
+            `Bienvenue ${data.utilisateur.prenom} ${data.utilisateur.nom} !`;
+        } else {
+          window.location.href = '/index.html';
+        }
+      })
+      .catch(err => {
+        console.error('Erreur lors de la récupération du profil:', err);
+      });
+  </script>
+</body>
+</html>

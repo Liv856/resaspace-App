@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Historique des réservations</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+    }
+
+    .container {
+      padding: 30px;
+      max-width: 1000px;
+      margin: auto;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      color: #2e7d32;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 15px;
+      color: #2e7d32;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    button {
+      padding: 5px 10px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #d32f2f;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/dashboard.html" class="back-link">← Retour au tableau de bord</a>
+    <h1>Historique des réservations</h1>
+    <table id="historique-table">
+      <thead>
+        <tr>
+          <th>Ressource</th>
+          <th>Type</th>
+          <th>Date début</th>
+          <th>Date fin</th>
+          <th>Statut</th>
+          <th>Commentaire</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="historique-body">
+        <tr><td colspan="7">Chargement...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+    }
+
+    function getStatusIcon(statut) {
+      const statusMap = {
+        'En attente': '⏳ En attente',
+        'Validée': '✅ Validée',
+        'Refusée': '❌ Refusée',
+        'Terminée': '✔️ Terminée'
+      };
+      return statusMap[statut] || statut;
+    }
+
+    function annulerReservation(id) {
+      if (confirm("Voulez-vous vraiment annuler cette réservation ?")) {
+        fetch(`/api/users/annuler/${id}`, {
+          method: 'POST'
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert(data.message);
+            rafraichirHistorique();
+          } else {
+            alert(data.erreur);
+          }
+        })
+        .catch(err => {
+          console.error('Erreur lors de l\'annulation:', err);
+          alert('Une erreur est survenue lors de l\'annulation');
+        });
+      }
+    }
+
+    function rafraichirHistorique() {
+      fetch('/api/users/historique')
+        .then(res => {
+          if (res.status === 401) {
+            alert('Veuillez vous connecter.');
+            window.location.href = '/auth.html';
+            return;
+          }
+          return res.json();
+        })
+        .then(data => {
+          if (!data) return;
+          const tbody = document.getElementById('historique-body');
+          tbody.innerHTML = '';
+
+          if (data.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7">Aucune réservation trouvée.</td></tr>';
+            return;
+          }
+
+          data.forEach(r => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${r.nom_ressource}</td>
+              <td>${r.type_ressource}</td>
+              <td>${formatDate(r.date_debut)}</td>
+              <td>${formatDate(r.date_fin)}</td>
+              <td>${getStatusIcon(r.statut)}</td>
+              <td>${r.commentaire || ''}</td>
+            `;
+
+            if (r.statut === 'en_attente') {
+              tr.innerHTML += `
+                <td>
+                  <button onclick="annulerReservation(${r.id_reservation})">Annuler</button>
+                </td>
+              `;
+            } else {
+              tr.innerHTML += '<td></td>';
+            }
+
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(err => {
+          console.error('Erreur:', err);
+          document.getElementById('historique-body').innerHTML = 
+            '<tr><td colspan="7">Erreur lors du chargement des données</td></tr>';
+        });
+    }
+
+    // Rafraîchir toutes les 30 secondes
+    setInterval(rafraichirHistorique, 30000);
+    document.addEventListener('DOMContentLoaded', rafraichirHistorique);
+  </script>
+</body>
+</html>

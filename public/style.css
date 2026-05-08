@@ -1,0 +1,51 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  text-align: center;
+  padding-top: 100px;
+}
+.container {
+  background-color: hsl(145, 51%, 41%);
+  padding: 40px;
+  border-radius: 8px;
+  width: 60%;
+  margin: auto;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #007BFF; /* bleu */
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+}
+
+.btn:hover {
+  background-color: #0056b3; /* bleu plus foncé au survol */
+}
+
+/* Page d'inscription : couleur spéciale */
+.register-page {
+  background-color: #e8f0fe; /* Bleu très clair */
+}
+
+/* Espacer les champs du formulaire */
+form input {
+  width: 20%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

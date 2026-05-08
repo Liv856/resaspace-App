@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Mes Réservations</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Mes Réservations</h2>
+    <div id="mes-reservations"></div>
+  </div>
+
+  <script>
+    fetch('/api/users/mes-reservations')
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('mes-reservations');
+        if (data.length === 0) {
+          container.innerHTML = "<p>Aucune réservation.</p>";
+        } else {
+          data.forEach(r => {
+            container.innerHTML += `
+              <div>
+                <strong>${r.nom_ressource}</strong> (${r.type})<br>
+                Du ${r.date_debut} au ${r.date_fin}<br>
+                Statut : <strong>${r.statut.toUpperCase()}</strong><br>
+                Commentaire : ${r.commentaire || 'Aucun'}<br><hr>
+              </div>
+            `;
+          });
+        }
+      });
+  </script>
+</body>
+</html>

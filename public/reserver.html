@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Réserver une ressource</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .message {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      transition: opacity 0.5s ease-out;
+    }
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body class="reserver-page">
+  <div class="container">
+    <h2>Réserver une salle ou un matériel</h2>
+    
+    <form id="form-reservation">
+      <label for="ressource">Choisir une ressource :</label>
+      <select name="ressource" id="ressource" required>
+        <option value="">-- Sélectionner --</option>
+      </select><br><br>
+
+      <label for="date_debut">Date de début :</label>
+      <input type="datetime-local" name="date_debut" required><br><br>
+
+      <label for="date_fin">Date de fin :</label>
+      <input type="datetime-local" name="date_fin" required><br><br>
+
+      <label for="commentaire">Commentaire :</label>
+      <textarea name="commentaire" rows="3" placeholder="Objet de la réservation"></textarea><br><br>
+
+      <button type="submit" class="btn">Réserver</button>
+    </form>
+
+    <div id="message"></div>
+    <br>
+    <a href="/dashboard.html">Retour au tableau de bord</a>
+  </div>
+
+  <script>
+    // Charger les ressources et pré-sélectionner si ID passé en paramètre
+    function chargerRessources() {
+      fetch('/api/users/ressources/disponibles')
+        .then(res => res.json())
+        .then(data => {
+          const select = document.getElementById('ressource');
+          const urlParams = new URLSearchParams(window.location.search);
+          const resourceId = urlParams.get('resourceId');
+
+          data.forEach(r => {
+            const option = document.createElement('option');
+            option.value = r.id_ressource;
+            option.textContent = `${r.nom} (${r.type})`;
+            select.appendChild(option);
+
+            // Pré-sélectionner si ID correspond
+            if (resourceId && r.id_ressource == resourceId) {
+              option.selected = true;
+            }
+          });
+        })
+        .catch(err => {
+          console.error("Erreur lors du chargement des ressources :", err);
+        });
+    }
+    const form = document.getElementById('form-reservation');
+    const msgDiv = document.getElementById('message');
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const submitBtn = form.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+
+      const formData = new FormData(form);
+      const body = Object.fromEntries(formData.entries());
+
+      // Validation des dates
+      if (new Date(body.date_fin) <= new Date(body.date_debut)) {
+        msgDiv.innerHTML = `<div class="message error">La date de fin doit être après la date de début.</div>`;
+        submitBtn.disabled = false;
+        setTimeout(() => { msgDiv.innerHTML = ''; }, 4000);
+        return;
+      }
+  
+      // Ajout de l'ID utilisateur
+      try {
+        const userRes = await fetch('/api/utilisateur');
+        const userData = await userRes.json();
+        if (userData.utilisateur) {
+          body.id_utilisateur = userData.utilisateur.id_utilisateur;
+        }
+      } catch (err) {
+        console.error("Erreur récupération utilisateur:", err);
+      }
+
+      const res = await fetch('/api/users/reserver', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      const result = await res.json();
+
+      msgDiv.innerHTML = '';
+      if (result.success) {
+        msgDiv.innerHTML = `<div class="message success">${result.message}</div>`;
+        form.reset();
+      } else {
+        msgDiv.innerHTML = `<div class="message error">${result.message || "Erreur lors de la réservation."}</div>`;
+      }
+      
+      setTimeout(() => {
+        msgDiv.innerHTML = '';
+      }, 2000);
+    });
+
+    // Charger au démarrage
+    document.addEventListener('DOMContentLoaded', chargerRessources);
+</script>
+</body>
+</html>

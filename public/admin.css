@@ -1,0 +1,212 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  text-align: center;
+  padding-top: 100px;
+}
+
+.login-body {
+  background-color: #f0f2f5;
+  display: flex;
+  justify-content: center;  /* centre horizontalement */
+  align-items: center;      /* centre verticalement */
+  height: 100vh;  
+}
+
+.login-container {
+  background-color: hsl(145, 51%, 41%);
+  padding: 40px;
+  border-radius: 8px;
+  width: 30%;
+  margin: auto;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+.login-container input, .login-container button {
+  width: 300px;        /* ou 60%, selon ton choix */
+  margin: 1em auto;     /* centrage horizontal */
+  padding: 0.8em;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  display: block; 
+}
+
+.login-container button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.sidebar {
+  width: 220px;
+  height: 100vh;
+  background-color: hsl(145, 51%, 41%);
+  color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 20px;
+}
+
+.sidebar h2 {
+  margin-bottom: 20px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  margin: 15px 0;
+}
+
+.sidebar ul li a {
+  color: white;
+  text-decoration: none;
+}
+
+.main-content {
+  margin-left: 240px;
+  padding: 20px;
+}
+.error-message {
+  background-color: #ffcccc;
+  color: #cc0000;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+.users-card {
+  background-color: #f9f9ff; /* fond doux légèrement bleuté */
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 100%;
+  overflow-x: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#table-users {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#table-users th, #table-users td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+#table-users th {
+  background-color: #e0e7ff; /* en-tête avec une couleur différente */
+  font-weight: bold;
+}
+.btn-retour-container {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.btn-retour {
+  background-color: #4a90e2;
+  color: white;
+  padding: 12px 30px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.btn-retour:hover {
+  background-color: #357abd;
+}
+/* Styles de base pour les pages admin */
+.container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #3498db;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+h1, h2, h3 {
+  color: #2c3e50;
+  margin-top: 0;
+}
+
+/* Styles pour les cartes statistiques */
+.stat-card {
+  background: #f8f9fa;
+  border-left: 4px solid #3498db;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+/* Styles pour les formulaires */
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+button {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #2980b9;
+}
+.message {
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.message.error {
+  background-color: #ffebee;
+  color: #c62828;
+  border-left: 4px solid #c62828;
+}
+
+.message.success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-left: 4px solid #2e7d32;
+}

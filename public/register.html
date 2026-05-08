@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inscription - ResaSpace</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="register-page">
+  <div class="container">
+    <h2>Créer un compte</h2>
+    <form action="/api/users/register" method="post" id="registerForm" autocomplete="off">
+      <input type="text" name="prenom" placeholder="Prénom" required autocomplete="new-password"><br>
+      <input type="text" name="nom" placeholder="Nom" required autocomplete="new-password"><br>
+      <input type="email" name="email" id="email" required placeholder="Votre email" autocomplete="new-password">
+      <input type="password" name="motdepasse" id="motdepasse" required minlength="6" placeholder="Mot de passe" autocomplete="new-password">
+      <button type="submit">S'inscrire</button>
+    </form>
+    <br />
+    <a href="/index.html" class="btn">Retour à l'accueil</a>
+  </div>
+  <script>
+    // Vérification de l'email
+    const emailInput = document.getElementById('email');
+    emailInput.addEventListener('input', function() {
+      const email = this.value;
+      if (!email.includes('@') || !email.includes('.')) {
+        this.setCustomValidity("Adresse email invalide");
+      } else {
+        this.setCustomValidity("");
+      }
+    });
+
+    // Réinitialisation du formulaire au chargement
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('registerForm').reset();
+      
+      // Solution supplémentaire pour certains navigateurs
+      const inputs = document.querySelectorAll('input');
+      inputs.forEach(input => {
+        input.value = '';
+        input.autocomplete = 'new-password';
+      });
+    });
+  </script>
+</body>
+</html>

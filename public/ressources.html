@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ressources disponibles</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+    }
+
+    .container {
+      padding: 30px;
+      max-width: 1000px;
+      margin: auto;
+      background-color: hsl(145, 51%, 41%);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      position: relative;
+      color: white;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .back-link {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .back-link::before {
+      content: "←";
+      margin-right: 5px;
+    }
+
+    h2 {
+      margin-top: 40px;
+      color: white;
+    }
+
+    .resource-card {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 10px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      color: #333;
+    }
+
+    .resource-card h3 {
+      margin-top: 0;
+      color: hsl(145, 51%, 41%);
+    }
+
+    .resource-actions {
+      margin-top: 10px;
+    }
+
+    .btn-reserver {
+      background-color: hsl(145, 51%, 41%);
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-reserver:hover {
+      background-color: hsl(145, 51%, 35%);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 id="bienvenue">Ressources disponibles</h1>
+      <a href="/dashboard.html" class="back-link">Retour au tableau de bord</a>
+    </div>
+    
+    <div id="resources-list"></div>
+  </div>
+
+  <script>
+    // Affichage du nom de l'utilisateur
+    fetch('/api/utilisateur')
+      .then(res => res.json())
+      .then(data => {
+        if (!data.utilisateur) {
+          window.location.href = '/index.html';
+        }
+      })
+      .catch(err => {
+        console.error('Erreur lors de la récupération du profil:', err);
+      });
+
+    // Charger les ressources disponibles
+    function chargerRessources() {
+      fetch('/api/users/ressources')
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('resources-list');
+          container.innerHTML = data.map(resource => `
+            <div class="resource-card">
+              <h3>${resource.nom}</h3>
+              <p><strong>Type:</strong> ${resource.type}</p>
+              <p>${resource.description || 'Aucune description'}</p>
+              <div class="resource-actions">
+                <button class="btn-reserver" onclick="location.href='/reserver.html?resourceId=${resource.id_ressource}'">
+                  Réserver cette ressource
+                </button>
+              </div>
+            </div>
+          `).join('');
+        })
+        .catch(err => {
+          console.error('Erreur lors du chargement des ressources:', err);
+          document.getElementById('resources-list').innerHTML = 
+            '<p class="resource-card">Erreur de chargement des ressources. Veuillez réessayer plus tard.</p>';
+        });
+    }
+
+    // Appeler cette fonction au chargement de la page
+    document.addEventListener('DOMContentLoaded', chargerRessources);
+  </script>
+</body>
+</html>

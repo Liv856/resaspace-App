@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestion des réservations</title>
+  <link rel="stylesheet" href="/admin.css">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      background: #35c984;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #2c3e50;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 10px;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #3498db;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .back-link:hover {
+      text-decoration: underline;
+    }
+    .reservation-section {
+      margin-bottom: 40px;
+      background-color: #e8f5e9;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .reservation-card {
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background-color: #4CAF50;
+      color: white;
+    }
+    tr:hover {
+      background-color: #f5f5f5;
+    }
+    .statut {
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-weight: bold;
+      color: white;
+    }
+    .statut-validee {
+      background-color: #2ecc71;
+    }
+    .statut-refusee {
+      background-color: #e74c3c;
+    }
+    .statut-en_attente {
+      background-color: #f39c12;
+    }
+    .statut-annulee {
+      background-color: #95a5a6;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+    }
+    .action-buttons button {
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn-valider {
+      background-color: #2ecc71;
+      color: white;
+    }
+    .btn-refuser {
+      background-color: #e74c3c;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/admin/dashboard" class="back-link">← Retour au tableau de bord</a>
+    <h1>Gestion des réservations</h1>
+
+    <div class="reservation-section">
+      <h2>Réservations en attente</h2>
+      <div id="pending-reservations">
+        <!-- Les cartes de réservation seront ajoutées ici -->
+      </div>
+    </div>
+
+    <div class="reservation-section">
+      <h2>Réservations traitées</h2>
+      <table id="processed-reservations">
+        <thead>
+          <tr>
+            <th>Ressource</th>
+            <th>Utilisateur</th>
+            <th>Email</th>
+            <th>Dates</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Fonction pour formater la date
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('fr-FR') + ' ' + date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+    }
+
+    // Fonction pour afficher le statut avec le bon style
+    function getStatusBadge(statut) {
+      const statusMap = {
+        'validee': {class: 'statut-validee', text: 'Validée'},
+        'refusee': {class: 'statut-refusee', text: 'Refusée'},
+        'en_attente': {class: 'statut-en_attente', text: 'En attente'},
+        'annulee': {class: 'statut-annulee', text: 'Annulée par l\'utilisateur'}
+      };
+      const status = statusMap[statut] || {class: '', text: statut};
+      return `<span class="statut ${status.class}">${status.text}</span>`;
+    }
+
+    // Fonction pour charger les réservations
+    function loadReservations() {
+      // Charger les réservations en attente
+      fetch('/admin/reservations?statut=en_attente')
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('pending-reservations');
+          container.innerHTML = '';
+
+          if (data.length === 0) {
+            container.innerHTML = '<p>Aucune réservation en attente.</p>';
+            return;
+          }
+
+          data.forEach(reservation => {
+            const card = document.createElement('div');
+            card.className = 'reservation-card';
+            card.innerHTML = `
+              <h3>${reservation.nom_ressource} (${reservation.type_ressource})</h3>
+              <p><strong>Utilisateur:</strong> ${reservation.prenom} ${reservation.nom_utilisateur}</p>
+              <p><strong>Email:</strong> ${reservation.email}</p>
+              <p><strong>Dates:</strong> ${formatDate(reservation.date_debut)} - ${formatDate(reservation.date_fin)}</p>
+              <p><strong>Commentaire:</strong> ${reservation.commentaire || 'Aucun'}</p>
+              
+              <div class="action-buttons">
+                <button class="btn-valider" onclick="processReservation(${reservation.id_reservation}, 'validee')">Valider</button>
+                <button class="btn-refuser" onclick="processReservation(${reservation.id_reservation}, 'refusee')">Refuser</button>
+                <input type="text" id="message-${reservation.id_reservation}" placeholder="Message (optionnel)">
+              </div>
+            `;
+            container.appendChild(card);
+          });
+        });
+
+      // Charger les réservations traitées (y compris annulées)
+      fetch('/admin/reservations?statut=validee,refusee,annulee')
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.querySelector('#processed-reservations tbody');
+          tbody.innerHTML = '';
+
+          data.forEach(reservation => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${reservation.nom_ressource} (${reservation.type_ressource})</td>
+              <td>${reservation.prenom} ${reservation.nom_utilisateur}</td>
+              <td>${reservation.email}</td>
+              <td>${formatDate(reservation.date_debut)} - ${formatDate(reservation.date_fin)}</td>
+              <td>${getStatusBadge(reservation.statut)}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+
+    // Fonction pour traiter une réservation
+    function processReservation(idReservation, statut) {
+      const message = document.getElementById(`message-${idReservation}`).value;
+
+      fetch(`/admin/reservations/${idReservation}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          statut: statut,
+          messageAdmin: message
+        })
+      })
+      .then(() => {
+        loadReservations();
+      })
+      .catch(err => console.error(err));
+    }
+
+    // Charger les données au démarrage
+    document.addEventListener('DOMContentLoaded', loadReservations);
+  </script>
+</body>
+</html>

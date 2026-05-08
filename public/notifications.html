@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Notifications</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .notification-card {
+      border: 1px solid #28a745;
+      border-left: 5px solid #28a745;
+      border-radius: 5px;
+      padding: 15px;
+      margin-bottom: 15px;
+      background-color: #f9f9f9;
+    }
+    .date-notification {
+      color: #666;
+      font-size: 0.9em;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="back">
+      <a href="/dashboard.html">&larr; Retour au tableau de bord</a>
+    </div>
+
+    <h1>📢 Toutes les notifications</h1>
+
+    <div id="toutes-les-notifications">
+      <!-- Les notifications seront chargées ici -->
+    </div>
+  </div>
+
+  <script>
+    function chargerNotifications() {
+      fetch('/api/users/notifications/non-lues')
+        .then(response => {
+          if (response.status === 401) {
+            window.location.href = '/auth.html';
+            return;
+          }
+          return response.json();
+        })
+        .then(data => {
+          const container = document.getElementById('toutes-les-notifications');
+          container.innerHTML = '';
+
+          if (!data || data.length === 0) {
+            container.innerHTML = "<p>Aucune notification disponible.</p>";
+            return;
+          }
+
+          data.forEach(notif => {
+            const card = document.createElement('div');
+            card.className = 'notification-card';
+            card.innerHTML = `
+              <h3>${notif.titre}</h3>
+              <p>${notif.message}</p>
+              <div class="date-notification">
+                ${new Date(notif.created_at).toLocaleString()}
+              </div>
+              <button onclick="marquerCommeLue('${notif.id_notification}')">Marquer comme lue</button>
+            `;
+            container.appendChild(card);
+          });
+        })
+        .catch(error => {
+          console.error('Erreur:', error);
+          document.getElementById('toutes-les-notifications').innerHTML = 
+            "<p>Erreur de chargement des notifications.</p>";
+        });
+    }
+
+    function marquerCommeLue(id) {
+      fetch(`/api/users/notifications/${id}/lue`, {
+        method: 'PUT'
+      })
+      .then(() => chargerNotifications())
+      .catch(err => console.error(err));
+    }
+
+    // Charger au démarrage
+    document.addEventListener('DOMContentLoaded', chargerNotifications);
+  </script>
+</body>
+</html>
